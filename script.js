@@ -52,15 +52,19 @@
   /* ── DEVICE FLAGS ─────────────────────────────────────────────
      isTouch  → no fine pointer: skip cursor, magnetic, tilt, parallax
      isMobile → small screen: skip aurora/glitch, simplify cylinder
-     reduce   → user asked for less motion: drop all ambient flair
-     lite     → skip heavy background fx (mobile OR reduced motion)
-     noPtrFx  → skip pointer-driven fx (touch OR reduced motion)
+     reduce   → user asked for less motion: shorten loader, calm CSS loops
+     lite     → skip heavy background fx (small screens only)
+     noPtrFx  → skip pointer-driven fx (touch only)
   ─────────────────────────────────────────────────────────────── */
   const isTouch  = window.matchMedia('(hover:none), (pointer:coarse)').matches;
   const isMobile = window.matchMedia('(max-width:900px)').matches;
   const reduce   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const lite     = isMobile || reduce;
-  const noPtrFx  = isTouch  || reduce;
+  /* Glitch / aurora / cursor are the brand's signature — they stay on desktop
+     even under reduced-motion. `reduce` only shortens the preloader and (via
+     CSS) calms the continuous ambient loops. Heavy fx are gated by device,
+     not by motion preference. */
+  const lite     = isMobile;   // skip heavy background fx on small screens
+  const noPtrFx  = isTouch;    // skip pointer-driven fx on touch devices
 
   /* ── AURORA CANVAS (hero background) — desktop only ─────────── */
   let auroraMouseX = window.innerWidth  / 2;
@@ -409,7 +413,7 @@
     const ce = 'power3.inOut';
 
     if (lite) {
-      /* MOBILE / reduced-motion: no pin (would clip the stacked info).
+      /* MOBILE: no pin (would clip the stacked info).
          Drum rotates + weights breathe, scrubbed to the section's scroll. */
       const cylTlM = gsap.timeline({
         scrollTrigger: {
@@ -487,6 +491,14 @@
     const hTrack   = document.getElementById('horizTrack');
     const getAmt   = () => -(hTrack.scrollWidth - window.innerWidth);
 
+    /* HUD refs */
+    const hSlides = gsap.utils.toArray('#horizTrack .h-slide');
+    const hFill   = document.getElementById('hFill');
+    const hIndex  = document.getElementById('hIndex');
+    const hTotal  = document.getElementById('hTotal');
+    if (hTotal) hTotal.textContent = String(hSlides.length).padStart(2, '0');
+    let hLastIdx = -1;
+
     const hScrollTl = gsap.to(hTrack, {
       x: getAmt,
       ease: 'none',
@@ -495,7 +507,33 @@
         start: 'top top',
         end: () => `+=${Math.abs(getAmt())}`,
         pin: true, scrub: 1, anticipatePin: 1, invalidateOnRefresh: true,
+        onUpdate: self => {
+          const p = self.progress;
+          if (hFill) hFill.style.transform = `scaleX(${p})`;
+          const idx = Math.min(hSlides.length, Math.floor(p * hSlides.length) + 1);
+          if (hIndex && idx !== hLastIdx) {
+            hLastIdx = idx;
+            hIndex.textContent = String(idx).padStart(2, '0');
+          }
+        }
       }
+    });
+
+    /* Horizontal parallax INSIDE each card image — depth as cards cross
+       the viewport. Drives background-position (not transform) so it never
+       collides with the pointer-driven 3D tilt on desktop. */
+    gsap.utils.toArray('#horizTrack .h-card .h-img').forEach(img => {
+      gsap.fromTo(img,
+        { backgroundPosition: '20% center' },
+        {
+          backgroundPosition: '80% center', ease: 'none',
+          scrollTrigger: {
+            trigger: img.closest('.h-card'),
+            containerAnimation: hScrollTl,
+            start: 'left right', end: 'right left', scrub: true,
+          }
+        }
+      );
     });
 
     /* ── §5 WORD SCRUB ────────────────────────────────────────────

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Diag — 06 Stats & 04 HUD</title>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+<style>body{cursor:auto;} .grain,.c-dot,.c-ring,.c-label{display:none!important;}</style>
+</head>
+<body>
+  <!-- 06 STATS -->
+  <section class="s-stats" id="s-stats" style="min-height:auto">
+    <div class="sec-num sec-num--dark" aria-hidden="true">06</div>
+    <div class="stats-head">
+      <span class="tag tag--dark">Numbers That Matter</span>
+      <h2 class="stats-title">IMPACT<br>IN DATA</h2>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-val"><span class="stat-n">120</span><span class="stat-unit">+</span></div>
+        <p class="stat-label">Progetti completati</p>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:85%"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val"><span class="stat-n">8</span><span class="stat-unit">+</span></div>
+        <p class="stat-label">Anni di esperienza</p>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:65%"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val"><span class="stat-n">40</span><span class="stat-unit">+</span></div>
+        <p class="stat-label">Clienti globali</p>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:55%"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val"><span class="stat-n">5</span><span class="stat-unit">★</span></div>
+        <p class="stat-label">Awwwards nominations</p>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:40%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 HUD preview over a card -->
+  <section style="position:relative;height:60vh;background:var(--dim)">
+    <div class="h-slide h-card" style="width:60vw;margin:0 auto;height:100%">
+      <div class="h-img-wrap"><div class="h-img" style="height:100%;background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop')"></div></div>
+      <div class="h-card-meta"><span class="h-num">01</span><h3>FLUID<br>DYNAMICS</h3><span class="h-sub">EXPERIMENT · 2025</span></div>
+    </div>
+    <div class="horiz-hud">
+      <span class="horiz-hud-index"><span id="hIndex">02</span> <em>/</em> <span id="hTotal">05</span></span>
+      <div class="horiz-hud-line"><span class="horiz-hud-fill" style="transform:scaleX(.4)"></span></div>
+      <span class="horiz-hud-hint">DRAG · SCROLL</span>
+    </div>
+  </section>
+</body>
+</html>

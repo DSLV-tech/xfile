@@ -368,6 +368,30 @@ body.hov-link .c-dot  { transform:translate(-50%,-50%) scale(0); opacity:0; }
 }
 .h-sub { font-family:var(--fm); font-size:.58rem; letter-spacing:3px; color:var(--ice); }
 
+/* HUD — progress indicator pinned over the horizontal track */
+.horiz-hud {
+  position:absolute; left:var(--ph); right:var(--ph);
+  bottom:clamp(22px,5vh,46px); z-index:5;
+  display:flex; align-items:center; gap:clamp(14px,2vw,26px);
+  pointer-events:none;
+}
+.horiz-hud-index {
+  font-family:var(--fm); font-size:.66rem; letter-spacing:3px;
+  color:var(--ink); white-space:nowrap; font-weight:700;
+}
+.horiz-hud-index #hIndex { color:var(--red); }
+.horiz-hud-index em { font-style:normal; opacity:.35; margin:0 2px; }
+.horiz-hud-line { position:relative; flex:1; height:1px; background:var(--mute); overflow:hidden; }
+.horiz-hud-fill {
+  position:absolute; inset:0; transform:scaleX(0); transform-origin:left;
+  background:linear-gradient(90deg, var(--red), var(--gold));
+}
+.horiz-hud-hint {
+  font-family:var(--fm); font-size:.52rem; letter-spacing:3px;
+  color:rgba(240,237,230,.28); text-transform:uppercase; white-space:nowrap;
+}
+@media (max-width:560px) { .horiz-hud-hint { display:none; } }
+
 /* End slide — paper bg: visual clarity on exit */
 .h-end { background:var(--paper); width:72vw; flex-shrink:0; }
 .h-end-content { display:flex; flex-direction:column; gap:20px; max-width:480px; }
@@ -414,10 +438,11 @@ body.hov-link .c-dot  { transform:translate(-50%,-50%) scale(0); opacity:0; }
   padding:var(--pv) var(--ph); overflow:hidden;
 }
 .stats-head { margin-bottom:clamp(48px,8vh,96px); }
-.stats-head .tag { margin-bottom:16px; color:#888; }
+.stats-head .tag { margin-bottom:16px; color:var(--red); }
 .stats-title {
   font-family:var(--fd); font-weight:700;
   font-size:clamp(3rem,8vw,8rem); line-height:.88; letter-spacing:-3px;
+  color:var(--bg);
 }
 .stats-title .char { display:inline-block; }
 .stats-grid {
@@ -438,10 +463,10 @@ body.hov-link .c-dot  { transform:translate(-50%,-50%) scale(0); opacity:0; }
 }
 .stat-unit { font-family:var(--fd); font-weight:700; font-size:clamp(1.5rem,3vw,3rem); color:var(--red); }
 .stat-label {
-  font-family:var(--fm); font-size:.58rem; letter-spacing:2px;
-  color:rgba(5,5,5,.4); text-transform:uppercase; line-height:1.6;
+  font-family:var(--fm); font-size:.62rem; letter-spacing:1.5px;
+  color:rgba(5,5,5,.68); text-transform:uppercase; line-height:1.6;
 }
-.stat-bar { height:2px; background:rgba(5,5,5,.08); overflow:hidden; margin-top:4px; }
+.stat-bar { height:2px; background:rgba(5,5,5,.14); overflow:hidden; margin-top:4px; }
 .stat-bar-fill { height:100%; width:0; background:var(--red); }
 
 /* ══════════════════════════════════════════════════════════════
@@ -835,15 +860,15 @@ a:focus-visible, button:focus-visible {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   ✦ REDUCED MOTION — respect the user's system preference
+   ✦ REDUCED MOTION — calm the CONTINUOUS ambient loops only.
+   The discrete, scroll-driven glitch is the brand's signature and
+   stays; we just stop the endlessly-looping background motion.
    ══════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration:.001ms !important;
-    animation-iteration-count:1 !important;
-    scroll-behavior:auto !important;
-  }
-  body { cursor:auto; }
-  .c-dot, .c-ring, .c-label, .c-ripple, .grain, .g-bar { display:none !important; }
-  .mq-inner, .hero-vline, .mag-btn, .scroll-pip { animation:none !important; }
+  .grain,
+  .mq-inner,
+  .hero-vline,
+  .mag-btn,
+  .scroll-pip,
+  .loader-tag::before { animation:none !important; }
 }
