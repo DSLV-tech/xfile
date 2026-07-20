@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mobile Preview — 390px</title>
+<style>
+  html,body{margin:0;height:100%;background:#222;font-family:system-ui,sans-serif;}
+  .bar{position:fixed;top:0;left:0;right:0;height:26px;background:#111;color:#7CFC9C;
+       font:12px/26px monospace;text-align:center;z-index:10;letter-spacing:1px;}
+  .stage{position:absolute;top:26px;left:0;right:0;bottom:0;display:flex;justify-content:center;overflow:auto;}
+  iframe{width:390px;height:844px;border:0;background:#070707;box-shadow:0 0 0 1px #444;margin-top:14px;}
+</style>
+</head>
+<body>
+  <div class="bar">MOBILE PREVIEW · 390 × 844 (iPhone-class viewport)</div>
+  <div class="stage">
+    <iframe src="index.html" title="mobile"></iframe>
+  </div>
+</body>
+</html>

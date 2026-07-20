@@ -49,10 +49,17 @@
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.lagSmoothing(0);
 
-  /* ── AURORA CANVAS (hero background) ────────────────────────── */
+  /* ── DEVICE FLAGS ─────────────────────────────────────────────
+     isTouch  → no fine pointer: skip cursor, magnetic, tilt, parallax
+     isMobile → small screen: skip aurora/glitch, simplify cylinder
+  ─────────────────────────────────────────────────────────────── */
+  const isTouch  = window.matchMedia('(hover:none), (pointer:coarse)').matches;
+  const isMobile = window.matchMedia('(max-width:900px)').matches;
+
+  /* ── AURORA CANVAS (hero background) — desktop only ─────────── */
   let auroraMouseX = window.innerWidth  / 2;
   let auroraMouseY = window.innerHeight / 2;
-  (function initAurora() {
+  if (!isMobile) (function initAurora() {
     const section = document.getElementById('s-hero');
     const canvas  = document.createElement('canvas');
     canvas.id = 'aurora-canvas';
@@ -89,18 +96,21 @@
     requestAnimationFrame(draw);
   })();
 
-  /* ── GLITCH BARS (pre-create DOM nodes) ─────────────────────── */
-  const gBars = Array.from({ length: 6 }, () => {
+  /* ── GLITCH BARS (pre-create DOM nodes) — desktop only ──────── */
+  const gBars = isMobile ? [] : Array.from({ length: 6 }, () => {
     const b = document.createElement('div');
     b.className = 'g-bar';
     document.body.appendChild(b);
     return b;
   });
 
-  /* ── 3. PROGRESS BAR + VELOCITY CHROMATIC ABERRATION ────────── */
+  /* ── 3. PROGRESS BAR + VELOCITY CHROMATIC ABERRATION ──────────
+     On mobile: progress bar only, skip velocity-driven glitch/aberration.
+  ─────────────────────────────────────────────────────────────── */
   let fastTimer;
   lenis.on('scroll', ({ progress, velocity }) => {
     document.getElementById('progressBar').style.width = (progress * 100) + '%';
+    if (isMobile) return;
     /* Chromatic aberration driven by scroll velocity */
     const spd = Math.abs(velocity);
     const ab  = Math.min(spd * .13, 7).toFixed(1);
@@ -134,7 +144,7 @@
   const cRing  = document.getElementById('cRing');
   const cLabel = document.getElementById('cLabel');
 
-  window.addEventListener('mousemove', e => {
+  if (!isTouch) window.addEventListener('mousemove', e => {
     /* Aurora orb mouse influence */
     auroraMouseX = e.clientX;
     auroraMouseY = e.clientY;
@@ -173,8 +183,8 @@
     el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
   });
 
-  /* ── CLICK RIPPLE ────────────────────────────────────────────── */
-  window.addEventListener('click', e => {
+  /* ── CLICK RIPPLE (pointer devices only) ─────────────────────── */
+  if (!isTouch) window.addEventListener('click', e => {
     const r = document.createElement('div');
     r.className = 'c-ripple';
     r.style.left = e.clientX + 'px';
@@ -319,28 +329,47 @@
 
     gsap.to('#cylStage', { autoAlpha: 1, duration: .6 });
 
-    const cylTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#s-cyl',
-        start: 'top top',
-        end: '+=200%',
-        pin: true, scrub: 2, anticipatePin: 1,
-      }
-    });
-
     const ce = 'power3.inOut';
-    cylTl
-      /* Phase 1: drum spins, odd chars thin, even chars wide */
-      .to(wheelEl, { rotationX: -(step * 2), transformOrigin: '50% 50%', ease: 'none', duration: 3 })
-      .to('.cyl-row .char:nth-of-type(odd)',  { fontWeight: 100, fontStretch: '10%',  ease: ce, duration: 2 }, '<.15')
-      .to('.cyl-row .char:nth-of-type(even)', { fontWeight: 800, fontStretch: '280%', ease: ce, duration: 2 }, '<')
-      /* Phase 2: drum continues, weights swap */
-      .to(wheelEl, { rotationX: -(step * 4), transformOrigin: '50% 50%', ease: 'none', duration: 3 }, '+=.1')
-      .to('.cyl-row .char:nth-of-type(odd)',  { fontWeight: 800, fontStretch: '280%', ease: ce, duration: 2 }, '<.15')
-      .to('.cyl-row .char:nth-of-type(even)', { fontWeight: 100, fontStretch: '10%',  ease: ce, duration: 2 }, '<')
-      /* Settle to neutral */
-      .to(wheelEl, { rotationX: -(step * 5), ease: 'none', duration: 1.5 })
-      .to('.cyl-row .char', { fontWeight: 400, fontStretch: '100%', ease: ce, duration: 1 }, '<');
+
+    if (isMobile) {
+      /* MOBILE: no pin (would clip the stacked info). Drum rotates +
+         weights breathe, scrubbed to the section's own scroll. */
+      const cylTlM = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#s-cyl',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1,
+        }
+      });
+      cylTlM
+        .to(wheelEl, { rotationX: -(step * 3), transformOrigin: '50% 50%', ease: 'none', duration: 3 })
+        .to('.cyl-row .char:nth-of-type(odd)',  { fontWeight: 100, fontStretch: '10%',  ease: ce, duration: 2 }, '<.2')
+        .to('.cyl-row .char:nth-of-type(even)', { fontWeight: 800, fontStretch: '240%', ease: ce, duration: 2 }, '<')
+        .to(wheelEl, { rotationX: -(step * 5), ease: 'none', duration: 2 })
+        .to('.cyl-row .char', { fontWeight: 400, fontStretch: '100%', ease: ce, duration: 1.5 }, '<');
+    } else {
+      const cylTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#s-cyl',
+          start: 'top top',
+          end: '+=200%',
+          pin: true, scrub: 2, anticipatePin: 1,
+        }
+      });
+      cylTl
+        /* Phase 1: drum spins, odd chars thin, even chars wide */
+        .to(wheelEl, { rotationX: -(step * 2), transformOrigin: '50% 50%', ease: 'none', duration: 3 })
+        .to('.cyl-row .char:nth-of-type(odd)',  { fontWeight: 100, fontStretch: '10%',  ease: ce, duration: 2 }, '<.15')
+        .to('.cyl-row .char:nth-of-type(even)', { fontWeight: 800, fontStretch: '280%', ease: ce, duration: 2 }, '<')
+        /* Phase 2: drum continues, weights swap */
+        .to(wheelEl, { rotationX: -(step * 4), transformOrigin: '50% 50%', ease: 'none', duration: 3 }, '+=.1')
+        .to('.cyl-row .char:nth-of-type(odd)',  { fontWeight: 800, fontStretch: '280%', ease: ce, duration: 2 }, '<.15')
+        .to('.cyl-row .char:nth-of-type(even)', { fontWeight: 100, fontStretch: '10%',  ease: ce, duration: 2 }, '<')
+        /* Settle to neutral */
+        .to(wheelEl, { rotationX: -(step * 5), ease: 'none', duration: 1.5 })
+        .to('.cyl-row .char', { fontWeight: 400, fontStretch: '100%', ease: ce, duration: 1 }, '<');
+    }
 
     /* CTA right side: headline chars + content stagger */
     gsap.from(gsap.utils.toArray('.cyl-headline .char'), {
@@ -356,7 +385,7 @@
     const cylWrap = document.getElementById('cylCtaWrap');
     const cylBtn  = document.getElementById('cylBtn');
     const cylTxt  = document.getElementById('cylBtnTxt');
-    if (cylWrap && cylBtn) {
+    if (!isTouch && cylWrap && cylBtn) {
       cylWrap.addEventListener('mousemove', e => {
         const r = cylBtn.getBoundingClientRect();
         const x = e.clientX - r.left - r.width / 2;
@@ -496,7 +525,7 @@
     const magArea = document.getElementById('magArea');
     const magBtn  = document.getElementById('magBtn');
     const magTxt  = document.getElementById('magTxt');
-    if (magArea && magBtn) {
+    if (!isTouch && magArea && magBtn) {
       magArea.addEventListener('mousemove', e => {
         const r = magArea.getBoundingClientRect();
         const x = e.clientX - r.left - r.width  / 2;
@@ -510,8 +539,8 @@
       });
     }
 
-    /* ── 3D CARD TILT (horizontal section) ───────────────────────── */
-    gsap.utils.toArray('.h-card').forEach(card => {
+    /* ── 3D CARD TILT (horizontal section) — pointer devices only ── */
+    if (!isTouch) gsap.utils.toArray('.h-card').forEach(card => {
       const img = card.querySelector('.h-img');
       card.addEventListener('mousemove', e => {
         const rc = card.getBoundingClientRect();
