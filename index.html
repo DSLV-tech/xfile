@@ -1,9 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Digital Solving — Scroll Animations</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+  <title>Digital Solving — Immersive Scroll Experience</title>
+  <meta name="description" content="Digital Solving — studio di web design creativo. Esperienze immersive scroll-driven costruite con GSAP, Lenis e variable fonts. Ogni pixel è una decisione strategica."/>
+  <meta name="author" content="Cristian Di Salvo"/>
+  <meta name="theme-color" content="#070707"/>
+  <meta name="color-scheme" content="dark"/>
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Digital Solving — Immersive Scroll Experience"/>
+  <meta property="og:description" content="Esperienze digitali che sfidano i limiti del possibile. Web design creativo, motion e 3D."/>
+  <meta property="og:locale" content="it_IT"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Digital Solving — Immersive Scroll Experience"/>
+  <meta name="twitter:description" content="Web design creativo, motion e 3D. GSAP · Lenis · Splitting."/>
+
+  <!-- Favicon (inline SVG — the DS logo mark) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 274 274'%3E%3Crect width='274' height='274' rx='40' fill='%23070707'/%3E%3Cpolyline points='24.74 159.23 47.14 181.63 226.35 181.63 271.15 136.83 2.5 136.83 47.35 92.02 226.35 92.02 248.75 114.43' fill='none' stroke='%23F0EDE6' stroke-width='16'/%3E%3Cpolyline points='159.23 248.91 181.63 226.51 181.63 47.3 136.83 2.5 136.83 271.15 92.02 226.31 92.02 47.3 114.43 24.9' fill='none' stroke='%23E5001E' stroke-width='16'/%3E%3C/svg%3E"/>
+
   <link rel="preconnect" href="https://api.fontshare.com" crossorigin/>
   <link href="https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -22,6 +39,29 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+
+  <!-- ═══ PRELOADER ═══ -->
+  <div class="loader" id="loader">
+    <div class="loader-panel" aria-hidden="true"></div>
+    <div class="loader-content">
+      <div class="loader-brand">
+        <svg width="34" height="34" viewBox="0 0 274 274" fill="none">
+          <polyline points="24.74 159.23 47.14 181.63 226.35 181.63 271.15 136.83 2.5 136.83 47.35 92.02 226.35 92.02 248.75 114.43"
+            stroke="#F0EDE6" stroke-width="16" stroke-linecap="square"/>
+          <polyline points="159.23 248.91 181.63 226.51 181.63 47.3 136.83 2.5 136.83 271.15 92.02 226.31 92.02 47.3 114.43 24.9"
+            stroke="#E5001E" stroke-width="16" stroke-linecap="square"/>
+        </svg>
+        <span class="loader-brand-txt">DIGITAL SOLVING</span>
+      </div>
+      <div class="loader-status">
+        <span class="loader-tag">Loading experience</span>
+      </div>
+      <div class="loader-count" aria-hidden="true">
+        <span id="loaderNum">0</span><span class="loader-pct">%</span>
+      </div>
+    </div>
+    <div class="loader-line"><span class="loader-line-fill" id="loaderFill"></span></div>
+  </div>
 
   <!-- Grain -->
   <div class="grain" aria-hidden="true"></div>

@@ -52,14 +52,20 @@
   /* ── DEVICE FLAGS ─────────────────────────────────────────────
      isTouch  → no fine pointer: skip cursor, magnetic, tilt, parallax
      isMobile → small screen: skip aurora/glitch, simplify cylinder
+     reduce   → user asked for less motion: drop all ambient flair
+     lite     → skip heavy background fx (mobile OR reduced motion)
+     noPtrFx  → skip pointer-driven fx (touch OR reduced motion)
   ─────────────────────────────────────────────────────────────── */
   const isTouch  = window.matchMedia('(hover:none), (pointer:coarse)').matches;
   const isMobile = window.matchMedia('(max-width:900px)').matches;
+  const reduce   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lite     = isMobile || reduce;
+  const noPtrFx  = isTouch  || reduce;
 
   /* ── AURORA CANVAS (hero background) — desktop only ─────────── */
   let auroraMouseX = window.innerWidth  / 2;
   let auroraMouseY = window.innerHeight / 2;
-  if (!isMobile) (function initAurora() {
+  if (!lite) (function initAurora() {
     const section = document.getElementById('s-hero');
     const canvas  = document.createElement('canvas');
     canvas.id = 'aurora-canvas';
@@ -97,7 +103,7 @@
   })();
 
   /* ── GLITCH BARS (pre-create DOM nodes) — desktop only ──────── */
-  const gBars = isMobile ? [] : Array.from({ length: 6 }, () => {
+  const gBars = lite ? [] : Array.from({ length: 6 }, () => {
     const b = document.createElement('div');
     b.className = 'g-bar';
     document.body.appendChild(b);
@@ -110,7 +116,7 @@
   let fastTimer;
   lenis.on('scroll', ({ progress, velocity }) => {
     document.getElementById('progressBar').style.width = (progress * 100) + '%';
-    if (isMobile) return;
+    if (lite) return;
     /* Chromatic aberration driven by scroll velocity */
     const spd = Math.abs(velocity);
     const ab  = Math.min(spd * .13, 7).toFixed(1);
@@ -144,7 +150,7 @@
   const cRing  = document.getElementById('cRing');
   const cLabel = document.getElementById('cLabel');
 
-  if (!isTouch) window.addEventListener('mousemove', e => {
+  if (!noPtrFx) window.addEventListener('mousemove', e => {
     /* Aurora orb mouse influence */
     auroraMouseX = e.clientX;
     auroraMouseY = e.clientY;
@@ -178,13 +184,27 @@
     el.addEventListener('mouseleave', () => document.body.classList.remove('hov-link'));
   });
 
+  /* ── HEADER: scrolled state + smooth anchor navigation ───────── */
+  const hdrEl = document.querySelector('.hdr');
+  lenis.on('scroll', ({ scroll }) => {
+    if (hdrEl) hdrEl.classList.toggle('scrolled', scroll > 60);
+  });
+  document.querySelectorAll('.hdr-nav a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      lenis.scrollTo(target, { offset: 0, duration: 1.4 });
+    });
+  });
+
   document.querySelectorAll('button, .mag-area, .btn-primary, .cyl-cta-wrap').forEach(el => {
     el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
     el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
   });
 
   /* ── CLICK RIPPLE (pointer devices only) ─────────────────────── */
-  if (!isTouch) window.addEventListener('click', e => {
+  if (!noPtrFx) window.addEventListener('click', e => {
     const r = document.createElement('div');
     r.className = 'c-ripple';
     r.style.left = e.clientX + 'px';
@@ -221,12 +241,69 @@
   gsap.set('.hero-sub', { opacity: 0 });
   gsap.set('.hero-tech',{ opacity: 0, x: 12 });
 
-  /* Orchestrated entrance timeline */
-  const entranceTl = gsap.timeline({ delay: .1 });
+  /* Orchestrated entrance timeline — held until the preloader lifts */
+  const entranceTl = gsap.timeline({ paused: true });
   entranceTl
     .to(heroWords, { y: '0%', stagger: .12, duration: 1.0, ease: 'power3.out' })
     .to('.hero-sub',  { opacity: 1, duration: .6, ease: 'power2.out' }, '-=.4')
     .to('.hero-tech', { opacity: 1, x: 0, stagger: .08, duration: .4, ease: 'power2.out' }, '-=.5');
+
+  /* ══════════════════════════════════════════════════════════════
+     PRELOADER — animated counter → curtain reveal → hero entrance
+     Scroll is locked (lenis.stop) until the curtain lifts so the
+     opening frame always lands on a composed hero.
+  ══════════════════════════════════════════════════════════════ */
+  (function initLoader() {
+    const loader = document.getElementById('loader');
+    if (!loader) { entranceTl.play(); return; }
+
+    document.body.classList.add('is-loading');
+    lenis.stop();
+
+    const numEl  = document.getElementById('loaderNum');
+    const fillEl = document.getElementById('loaderFill');
+    let done = false;
+
+    const reveal = () => {
+      if (done) return; done = true;
+      const tl = gsap.timeline({
+        onComplete: () => {
+          loader.style.display = 'none';
+          document.body.classList.remove('is-loading');
+          lenis.start();
+          ScrollTrigger.refresh();
+        }
+      });
+      tl.to(loader, {
+        yPercent: -100,
+        duration: reduce ? .3 : 1.05,
+        ease: 'expo.inOut',
+      });
+      /* Hero rises as the curtain clears — a single, cohesive motion */
+      tl.add(() => entranceTl.play(), reduce ? '>' : '-=.55');
+    };
+
+    /* Progress: eased count to 100, then reveal. Nudged to completion
+       once the window fully loads so it never stalls under 100. */
+    let pct = 0;
+    const finish = { reached: false };
+    const settle = () => { finish.reached = true; };
+    if (document.readyState === 'complete') settle();
+    else window.addEventListener('load', settle, { once: true });
+    /* Safety: never hang on a slow asset */
+    setTimeout(settle, 3200);
+
+    (function count() {
+      const ceil = finish.reached ? 100 : 92;
+      pct += Math.max(.6, (ceil - pct) * (reduce ? .5 : .09));
+      if (pct >= 100) pct = 100;
+      const shown = Math.round(pct);
+      if (numEl)  numEl.textContent = shown;
+      if (fillEl) fillEl.style.width = shown + '%';
+      if (pct >= 100) { setTimeout(reveal, reduce ? 0 : 260); return; }
+      requestAnimationFrame(count);
+    })();
+  })();
 
   /* Parallax on the dot grid as user scrolls hero */
   gsap.to('#heroGrid', {
@@ -331,9 +408,9 @@
 
     const ce = 'power3.inOut';
 
-    if (isMobile) {
-      /* MOBILE: no pin (would clip the stacked info). Drum rotates +
-         weights breathe, scrubbed to the section's own scroll. */
+    if (lite) {
+      /* MOBILE / reduced-motion: no pin (would clip the stacked info).
+         Drum rotates + weights breathe, scrubbed to the section's scroll. */
       const cylTlM = gsap.timeline({
         scrollTrigger: {
           trigger: '#s-cyl',
@@ -385,7 +462,7 @@
     const cylWrap = document.getElementById('cylCtaWrap');
     const cylBtn  = document.getElementById('cylBtn');
     const cylTxt  = document.getElementById('cylBtnTxt');
-    if (!isTouch && cylWrap && cylBtn) {
+    if (!noPtrFx && cylWrap && cylBtn) {
       cylWrap.addEventListener('mousemove', e => {
         const r = cylBtn.getBoundingClientRect();
         const x = e.clientX - r.left - r.width / 2;
@@ -525,7 +602,7 @@
     const magArea = document.getElementById('magArea');
     const magBtn  = document.getElementById('magBtn');
     const magTxt  = document.getElementById('magTxt');
-    if (!isTouch && magArea && magBtn) {
+    if (!noPtrFx && magArea && magBtn) {
       magArea.addEventListener('mousemove', e => {
         const r = magArea.getBoundingClientRect();
         const x = e.clientX - r.left - r.width  / 2;
@@ -540,7 +617,7 @@
     }
 
     /* ── 3D CARD TILT (horizontal section) — pointer devices only ── */
-    if (!isTouch) gsap.utils.toArray('.h-card').forEach(card => {
+    if (!noPtrFx) gsap.utils.toArray('.h-card').forEach(card => {
       const img = card.querySelector('.h-img');
       card.addEventListener('mousemove', e => {
         const rc = card.getBoundingClientRect();
@@ -571,6 +648,18 @@
           }, i * 18);
         });
       }
+    });
+
+    /* ── ACTIVE NAV LINK — highlight the section in view ─────────── */
+    gsap.utils.toArray('.hdr-nav a[href^="#"]').forEach(a => {
+      const sec = document.querySelector(a.getAttribute('href'));
+      if (!sec) return;
+      ScrollTrigger.create({
+        trigger: sec,
+        start: 'top 45%',
+        end: 'bottom 45%',
+        onToggle: self => a.classList.toggle('active', self.isActive),
+      });
     });
 
     /* ── SINGLE FINAL REFRESH ─────────────────────────────────────
