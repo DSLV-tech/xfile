@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Digital Solving — Scroll Animations</title>
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin/>
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    @font-face {
+      font-family:'Anybody';
+      src:url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/61488/ETCAnybodyPB.woff2') format('woff2-variations');
+      font-weight:100 900; font-stretch:10% 400%; font-display:block;
+    }
+  </style>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/splitting/dist/splitting.css"/>
+  <script src="https://unpkg.com/splitting/dist/splitting.min.js"></script>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Grain -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Cursor -->
+  <div class="c-dot" id="cDot"></div>
+  <div class="c-ring" id="cRing"></div>
+  <div class="c-label" id="cLabel"></div>
+
+  <!-- Progress -->
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- Header -->
+  <header class="hdr">
+    <div class="hdr-logo">
+      <svg width="28" height="28" viewBox="0 0 274 274" fill="none">
+        <polyline points="24.74 159.23 47.14 181.63 226.35 181.63 271.15 136.83 2.5 136.83 47.35 92.02 226.35 92.02 248.75 114.43"
+          stroke="currentColor" stroke-width="16" stroke-linecap="square"/>
+        <polyline points="159.23 248.91 181.63 226.51 181.63 47.3 136.83 2.5 136.83 271.15 92.02 226.31 92.02 47.3 114.43 24.9"
+          stroke="var(--red)" stroke-width="16" stroke-linecap="square"/>
+      </svg>
+      <span>DIGITAL SOLVING</span>
+    </div>
+    <nav class="hdr-nav">
+      <a href="#s-reveal" data-cursor="ABOUT">Techniques</a>
+      <a href="#s-horiz" data-cursor="WORK">Lab</a>
+      <a href="#s-footer" data-cursor="HELLO">Contact</a>
+    </nav>
+    <span class="hdr-tag">GSAP · LENIS · SPLITTING</span>
+  </header>
+
+  <!-- ═══ 01 HERO ═══ -->
+  <section class="s-hero" id="s-hero">
+    <div class="hero-grid" id="heroGrid"></div>
+    <div class="hero-vline" aria-hidden="true"></div>
+
+    <div class="hero-num" aria-hidden="true">01</div>
+
+    <div class="hero-stage">
+      <!-- overflow:hidden on .lw clips the y:100% entrance slide -->
+      <div class="lw"><h1 class="hw" data-splitting>IMMERSIVE</h1></div>
+      <div class="lw"><h1 class="hw hw-ghost" data-splitting>SCROLLING</h1></div>
+      <div class="lw"><h1 class="hw hw-accent" data-splitting>EXPERIENCE</h1></div>
+    </div>
+
+    <div class="hero-foot">
+      <div class="hero-foot-left">
+        <p class="hero-sub">Scroll to detonate the letters.</p>
+        <div class="mouse-icon">
+          <!-- .scroll-pip NOT .wheel → no CSS collision with .cylinder-wheel -->
+          <div class="scroll-pip"></div>
+        </div>
+      </div>
+      <div class="hero-foot-right">
+        <span class="hero-tech">Split Text</span>
+        <span class="hero-tech">3D Explosion</span>
+        <span class="hero-tech">ScrollTrigger</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee" aria-hidden="true">
+    <div class="mq-inner">
+      <span>GSAP SCROLLTRIGGER</span><em>◆</em>
+      <span>LENIS SMOOTH SCROLL</span><em>◆</em>
+      <span>SPLITTING.JS</span><em>◆</em>
+      <span>VARIABLE FONTS</span><em>◆</em>
+      <span>3D TRANSFORMS</span><em>◆</em>
+      <span>HORIZONTAL SCROLL</span><em>◆</em>
+      <span>MAGNETIC BUTTON</span><em>◆</em>
+      <span>CLIP-PATH REVEAL</span><em>◆</em>
+      <span>GSAP SCROLLTRIGGER</span><em>◆</em>
+      <span>LENIS SMOOTH SCROLL</span><em>◆</em>
+      <span>SPLITTING.JS</span><em>◆</em>
+      <span>VARIABLE FONTS</span><em>◆</em>
+      <span>3D TRANSFORMS</span><em>◆</em>
+      <span>HORIZONTAL SCROLL</span><em>◆</em>
+      <span>MAGNETIC BUTTON</span><em>◆</em>
+      <span>CLIP-PATH REVEAL</span><em>◆</em>
+    </div>
+  </div>
+
+  <!-- ═══ 02 CLIP-PATH REVEAL ═══ -->
+  <section class="s-reveal" id="s-reveal">
+    <div class="sec-num" aria-hidden="true">02</div>
+    <div class="sec-label">
+      <span class="tag">Clip-Path Char Reveal</span>
+      <p>Each character is unveiled via <code>clip-path:inset()</code>, scrubbed 1:1 to scroll position through a GSAP staggered timeline.</p>
+    </div>
+    <div class="rv-words">
+      <p class="rv-line" data-splitting>SCROLL</p>
+      <p class="rv-line rv-ghost" data-splitting>DRIVEN</p>
+      <p class="rv-line" data-splitting>DESIGN</p>
+    </div>
+  </section>
+
+  <!-- ═══ 03 CYLINDER ═══ -->
+  <section class="s-cyl" id="s-cyl">
+    <div class="sec-num" aria-hidden="true">03</div>
+
+    <div class="cyl-wrap">
+      <!-- cylinder-wheel NOT .wheel → zero CSS class collision -->
+      <div class="cyl-stage" id="cylStage">
+        <div class="cylinder-wheel" id="mainWheel">
+          <!-- MOTION: varied letterforms, max fontStretch visibility -->
+          <p class="cyl-row" data-splitting>MOTION</p>
+        </div>
+      </div>
+      <span class="cyl-ghost-word" aria-hidden="true">MOTION</span>
+    </div>
+
+    <div class="cyl-info">
+      <span class="tag">3D Cylinder + Variable Font</span>
+      <h2 class="cyl-headline" data-splitting>WE BUILD<br>THE WEB<br>OF TOMORROW</h2>
+      <p class="cyl-body">Esperienze digitali che sfidano i limiti del possibile. Ogni pixel è una decisione strategica, ogni frame una poesia in codice.</p>
+      <div class="cyl-cta-wrap" id="cylCtaWrap">
+        <button class="btn-primary" id="cylBtn"><span id="cylBtnTxt">INIZIA ORA ↗</span></button>
+      </div>
+      <ul class="cyl-list">
+        <li><span>Web Design</span></li>
+        <li><span>Creative Code</span></li>
+        <li><span>Motion &amp; 3D</span></li>
+        <li><span>Brand Experience</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══ 04 HORIZONTAL LAB ═══ -->
+  <section class="s-horiz" id="s-horiz">
+    <!-- horiz-clip: overflow:hidden here, NOT on s-horiz
+         (pinned element exits overflow context when fixed) -->
+    <div class="horiz-clip">
+      <div class="horiz-track" id="horizTrack">
+
+        <div class="h-slide h-intro">
+          <span class="tag">04 · Horizontal Scroll</span>
+          <h2 class="h-big-title">OUR<br>LAB</h2>
+          <p>Il tuo scroll verticale muove il mondo in orizzontale. GSAP calcola la distanza, pin + scrub danno il mapping 1:1.</p>
+          <span class="h-arrow" aria-hidden="true">—→</span>
+        </div>
+
+        <div class="h-slide h-card" data-cursor="VIEW">
+          <div class="h-img-wrap">
+            <div class="h-img" style="background-image:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')"></div>
+          </div>
+          <div class="h-card-meta">
+            <span class="h-num">01</span>
+            <h3>FLUID<br>DYNAMICS</h3>
+            <span class="h-sub">EXPERIMENT · 2025</span>
+          </div>
+        </div>
+
+        <div class="h-slide h-card" data-cursor="VIEW">
+          <div class="h-img-wrap">
+            <div class="h-img" style="background-image:url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop')"></div>
+          </div>
+          <div class="h-card-meta">
+            <span class="h-num">02</span>
+            <h3>PURE<br>GEOMETRY</h3>
+            <span class="h-sub">EXPERIMENT · 2025</span>
+          </div>
+        </div>
+
+        <div class="h-slide h-card" data-cursor="VIEW">
+          <div class="h-img-wrap">
+            <div class="h-img" style="background-image:url('https://images.unsplash.com/photo-1550684376-efcbd6e3f031?q=80&w=2670&auto=format&fit=crop')"></div>
+          </div>
+          <div class="h-card-meta">
+            <span class="h-num">03</span>
+            <h3>CYBER<br>SPACE</h3>
+            <span class="h-sub">EXPERIMENT · 2024</span>
+          </div>
+        </div>
+
+        <!-- Paper end slide — clear visual signal, never a black void -->
+        <div class="h-slide h-end">
+          <div class="h-end-content">
+            <h2 class="h-end-title">KEEP<br>SCROLLING</h2>
+            <div class="h-end-line"></div>
+            <p>Continua verticalmente per il manifesto e i numeri.</p>
+            <span class="h-end-arrow" aria-hidden="true">↓</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 05 WORD SCRUB ═══ -->
+  <section class="s-stmt" id="s-stmt">
+    <div class="sec-num" aria-hidden="true">05</div>
+    <div class="stmt-label">
+      <span class="tag">Word Scrub Reveal</span>
+    </div>
+    <!-- Scrub progress line -->
+    <div class="scrub-track">
+      <div class="scrub-fill" id="scrubFill"></div>
+    </div>
+    <div class="stmt-body">
+      <p class="stmt-text" id="stmtText" data-splitting>
+        Il web non è un foglio di carta stampato. È un ambiente vivo fatto di codice, matematica e movimento. Chiudiamo le gabbie strutturali ed apriamo le porte all'esperienza sensoriale.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ 06 STATS ═══ (paper section — breaks up dark rhythm) -->
+  <section class="s-stats" id="s-stats">
+    <div class="sec-num sec-num--dark" aria-hidden="true">06</div>
+    <div class="stats-head">
+      <span class="tag tag--dark">Numbers That Matter</span>
+      <h2 class="stats-title" data-splitting>IMPACT<br>IN DATA</h2>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-val"><span class="stat-n" data-target="120">0</span><span class="stat-unit">+</span></div>
+        <p class="stat-label">Progetti completati</p>
+        <div class="stat-bar"><div class="stat-bar-fill" data-pct="85"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val"><span class="stat-n" data-target="8">0</span><span class="stat-unit">+</span></div>
+        <p class="stat-label">Anni di esperienza</p>
+        <div class="stat-bar"><div class="stat-bar-fill" data-pct="65"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val"><span class="stat-n" data-target="40">0</span><span class="stat-unit">+</span></div>
+        <p class="stat-label">Clienti globali</p>
+        <div class="stat-bar"><div class="stat-bar-fill" data-pct="55"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val"><span class="stat-n" data-target="5">0</span><span class="stat-unit">★</span></div>
+        <p class="stat-label">Awwwards nominations</p>
+        <div class="stat-bar"><div class="stat-bar-fill" data-pct="40"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 07 FOOTER ═══ -->
+  <footer class="s-footer" id="s-footer">
+    <div class="ft-glyph" aria-hidden="true">DS</div>
+    <div class="ft-inner">
+      <span class="tag ft-tag">07 · Magnetic Button</span>
+      <div class="ft-lines">
+        <div class="ft-lw"><h2 class="ft-line" data-splitting>READY</h2></div>
+        <div class="ft-lw"><h2 class="ft-line ft-ghost" data-splitting>TO BUILD</h2></div>
+      </div>
+      <div class="mag-area" id="magArea">
+        <button class="mag-btn" id="magBtn">
+          <span id="magTxt">INITIATE</span>
+        </button>
+      </div>
+      <div class="ft-contact">
+        <a href="mailto:hello@digitalsolving.it" class="ft-email">hello@digitalsolving.it</a>
+        <div class="ft-socials">
+          <a href="#">Instagram</a><a href="#">LinkedIn</a><a href="#">Behance</a>
+        </div>
+      </div>
+      <p class="ft-credit">Designed by Cristian Di Salvo × Antigravity AI &nbsp;·&nbsp; © 2026 Digital Solving</p>
+    </div>
+    <div class="ft-glow"></div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
